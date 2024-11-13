@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String        @id @default(uuid())
+  name                 String
+  dateOfBirth          DateTime
+  gender               String
+  graduatedFrom        String
+  currentlyWorking     String
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  verification         Verification?
+  requestedConnections Connection[]  @relation("requested")
+  receivedConnections  Connection[]  @relation("receiver")
+}
+
+model Verification {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  verifiedFields Json
+  status         String
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id])
+}
+
+model Connection {
+  id          String   @id @default(uuid())
+  requesterId String
+  receiverId  String
+  stakeAmount Float
+  status      String   @default("pending")
+  chatHistory Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  requester   User     @relation("requested", fields: [requesterId], references: [id])
+  receiver    User     @relation("receiver", fields: [receiverId], references: [id])
+}
