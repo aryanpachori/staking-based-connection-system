@@ -37,7 +37,7 @@ userRouter.get("/reclaim/generate-config", (req, res) => __awaiter(void 0, void 
     const PROVIDER_ID = process.env.PROVIDER_ID;
     try {
         const reclaimProofRequest = yield js_sdk_1.ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID);
-        reclaimProofRequest.setAppCallbackUrl("http://localhost:3000/api/v1/user/receive-proofs");
+        reclaimProofRequest.setAppCallbackUrl("https://2157-119-82-83-136.ngrok-free.app/api/v1/user/receive-proofs");
         const reclaimProofRequestConfig = reclaimProofRequest.toJsonString();
         res.json({ reclaimProofRequestConfig });
         return;

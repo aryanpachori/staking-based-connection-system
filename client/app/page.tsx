@@ -4,7 +4,8 @@ import { ReclaimProofRequest } from "@reclaimprotocol/js-sdk";
 import { Proof } from "@reclaimprotocol/js-sdk";
 import { useQRCode } from "next-qrcode";
 import Link from "next/link";
-
+import dotenv from "dotenv"
+dotenv.config()
 export default function Home() {
   const [verificationReqUrl, setVerificationReqUrl] = useState<
     string | undefined
@@ -21,16 +22,41 @@ export default function Home() {
 
   async function initializeReclaimProofRequest() {
     try {
-      const response = await fetch(
-        "http://localhost:3000/api/v1/user/reclaim/generate-config"
-      );
-      const { reclaimProofRequestConfig } = await response.json();
+      // ReclaimProofRequest Fields:
+      // - applicationId: Unique identifier for your application
+      // - providerId: Identifier for the specific provider you're using
+      // - sessionId: Unique identifier for the current proof request session
+      // - context: Additional context information for the proof request
+      // - requestedProof: Details of the proof being requested
+      // - signature: Cryptographic signature for request authentication
+      // - redirectUrl: URL to redirect after proof generation (optional)
+      // - appCallbackUrl: URL for receiving proof generation updates (optional)
+      // - timeStamp: Timestamp of the proof request
+      // - options: Additional configuration options
 
-      // Reconstruct the ReclaimProofRequest object
-      const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(
-        reclaimProofRequestConfig
+      const proofRequest = await ReclaimProofRequest.init(
+        process.env.NEXT_PUBLIC_APP_ID!,
+        process.env.NEXT_PUBLIC_APP_SECRET!,
+        "a9f1063c-06b7-476a-8410-9ff6e427e637" // providerId
+        // Uncomment the following line to enable logging and AI providers
+        // { log: true, acceptAiProviders: true }
       );
-      setReclaimProofRequest(reclaimProofRequest);
+      setReclaimProofRequest(proofRequest);
+
+      // Add context to the proof request (optional)
+      //proofRequest.addContext("0x00000000000", "Example context message");
+
+      // Set parameters for the proof request (if needed)
+      //proofRequest.setParams({ Firstname: "Aryan", Lastname: "Pachori" });
+
+      // Set a redirect URL (if needed)
+      // proofRequest.setRedirectUrl('https://www.linkedin.com/uas/login?session_redirect=https%3A%2F%2Fwww.linkedin.com%2Fme%3Ftrk%3Dp_mwlite_feed-secondary_nav/redirect')
+
+      // Set a custom app callback URL (if needed)
+      // proofRequest.setAppCallbackUrl('https://your-website.com/callback')
+
+      // Uncomment the following line to log the proof request and to get the Json String
+      console.log('Proof request initialized:', proofRequest.toJsonString())
     } catch (error) {
       console.error("Error initializing ReclaimProofRequest:", error);
     }
@@ -110,7 +136,9 @@ export default function Home() {
         {extracted && (
           <div className="mt-4">
             <h2 className="text-xl font-semibold mb-2">Extracted Data:</h2>
-            <pre className="bg-gray-100 p-4 rounded">{extracted}</pre>
+            <pre className="bg-gray-100 p-4 rounded text-black">
+              {extracted}
+            </pre>
           </div>
         )}
         {!extracted && verificationReqUrl && (
